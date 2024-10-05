@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -6,7 +7,7 @@ using System.Threading.Tasks;
 
 namespace kasd_labs_console
 {
-    public class MyArrayList<T>
+    public class MyArrayList<T> : IEnumerable
     {
         private T[] elementData;
         private int size; //  количество элементов в динамическом массиве.
@@ -182,12 +183,16 @@ namespace kasd_labs_console
             if (count >= elementData.Length)
             {
                 int newCapacity = (int)Math.Floor(elementData.Length * 1.5);
-                newCapacity = count;
                 T[] newElementData = new T[newCapacity];
                 for (int i = 0; i < elementData.Length; i++) newElementData[i] = elementData[i];
                 elementData = newElementData;
             }
         }
+        public IEnumerator GetEnumerator()
+        {
+            return elementData.GetEnumerator();
+        }
+
     }
 
 }
