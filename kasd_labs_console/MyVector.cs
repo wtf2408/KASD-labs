@@ -7,39 +7,34 @@ using System.Threading.Tasks;
 
 namespace kasd_labs_console
 {
-    public class MyArrayList<T> : IEnumerable
+    public class MyVector<T> : IEnumerable
     {
         private T[] elementData;
         private int size; //  количество элементов в динамическом массиве.
+        private int capacityIncrement;
         public int Size { get => size; }
-        public T this[int i] // метод получения и установки эл. по индексу
-        {
-            get
-            { 
-                if (i < 0 || i >= size) throw new IndexOutOfRangeException();
-                return elementData[i];
-            }
-            set
-            {
-                if (i < 0 || i >= size) throw new IndexOutOfRangeException();
-                elementData[i] = value;
-            }
-        }
-        public MyArrayList()
+        public MyVector()
         {
             elementData = new T[10];
             size = 0;
         }
-        public MyArrayList(T[] array)
+        public MyVector(T[] array)
         {
             elementData = new T[array.Length];
             Array.Copy(array, elementData, array.Length);
             size = array.Length;
         }
-        public MyArrayList(int capacity)
+        public MyVector(int capacity)
         {
             if (capacity < 0) throw new ArgumentOutOfRangeException("размер динамического массива не может быть отрицательным");
             elementData = new T[capacity];
+            size = 0;
+        }
+        public MyVector(int capacity, int capacityInc)
+        {
+            if (capacity < 0) throw new ArgumentOutOfRangeException("размер динамического массива не может быть отрицательным");
+            elementData = new T[capacity];
+            this.capacityIncrement = capacityInc;
             size = 0;
         }
         public void Add(T item)
@@ -164,12 +159,12 @@ namespace kasd_labs_console
             }
             return -1;
         }
-        public MyArrayList<T> SubList(int fromIndex, int toIndex) // Метод получения подсписка
+        public MyVector<T> SubList(int fromIndex, int toIndex) // Метод получения подсписка
         {
             if (fromIndex < 0 || toIndex > size || fromIndex > toIndex)
                 throw new ArgumentOutOfRangeException();
 
-            var sublist = new MyArrayList<T>(toIndex - fromIndex);
+            var sublist = new MyVector<T>(toIndex - fromIndex);
 
             for (int i = fromIndex; i < toIndex; i++)
             {
@@ -192,7 +187,51 @@ namespace kasd_labs_console
         {
             return elementData.GetEnumerator();
         }
+        public T this[int i] // метод получения и установки эл. по индексу
+        {
+            get
+            { 
+                if (i < 0 || i >= size) throw new IndexOutOfRangeException();
+                return elementData[i];
+            }
+            set
+            {
+                if (i < 0 || i >= size) throw new IndexOutOfRangeException();
+                elementData[i] = value;
+            }
+        }
+        public T FirstElement()
+        {
+            if (size == 0)
+                throw new ArgumentOutOfRangeException("index");
+            return elementData[0];
+        }
 
+        public T LastElement()
+        {
+            if (size == 0)
+                throw new ArgumentOutOfRangeException("вектор пуст");
+            return elementData[size - 1];
+        }
+
+        public void RemoveElementAt(int pos)
+        {
+            if (pos < 0 || pos >= size)
+                throw new ArgumentOutOfRangeException("выход за рамки вектора");
+            T element = elementData[pos];
+            for (int i = pos; i < size - 1; i++)
+                elementData[i] = elementData[i + 1];
+            size--;
+        }
+        public void RemoveRange(int begin, int end)
+        {
+            if (begin < 0 || begin >= size)
+                throw new ArgumentOutOfRangeException("недопустимое начало");
+            if (end < 0 || end >= size)
+                throw new ArgumentOutOfRangeException("недопустимый конец");
+            for (int i = 0; i < end - begin; i++)
+                RemoveElementAt(begin);
+        }
     }
 
 }
