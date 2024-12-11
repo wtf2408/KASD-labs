@@ -3,78 +3,79 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using System.Web;
 using static System.Math;
 
 namespace kasd_labs_winforms
 {
     class Generation
     {
-        private static int rand_min = 0;
-        private static int rand_max = 1000;
-        private static int step_size_min = 2;
-        private static int step_size_max = 50;
-        private static int big_mass_size = 500;
-        public static int[] GenSortMass(int size)
+
+        private static T GetRandomElement<T>()
         {
             Random random = new Random(((int)DateTime.Now.Ticks));
-
-            int step_size = size >= big_mass_size
-                ? random.Next(step_size_min, step_size_max / 10)
-                : random.Next(step_size_min, step_size_max);
-
-            int[] mass = new int[size];
-            int rmin = rand_min;
+            if (typeof(T) == typeof(int))
+            {
+                return (T)(object)random.Next(1000);
+            }
+            if (typeof(T) == typeof(char))
+            {
+                char c = (char)random.Next(255);
+                return (T)(object)c;
+            }
+            if (typeof(T) == typeof(double))
+            {
+                return (T)(object)(random.NextDouble() % 1000);
+            }
+            else throw new Exception("This type is not supported");
+        }
+        public static T[] GenSortMass<T>(int size)
+        {
+            T[] mass = new T[size];
             for (int i = 0; i < size; i++)
             {
-                mass[i] = random.Next(rmin, Min(rmin + step_size, rand_max));
-                rmin = mass[i];
+                mass[i] = GetRandomElement<T>();
+            }
+
+            Array.Sort(mass, ComparatorGen.GetComparer<T>());
+            return mass;
+        }
+        public static T[] GenRandomMass<T>(int size)
+        {
+            Random random = new Random(((int)DateTime.Now.Ticks));
+            T[] mass = new T[size];
+            for (int i = 0; i < size; i++)
+            {
+                mass[i] = GetRandomElement<T>();
             }
 
             return mass;
         }
-        public static int[] GenRandomMass(int size)
+        public static T[] GenDescSortMass<T>(int size)
         {
-            Random random = new Random(((int)DateTime.Now.Ticks));
-            int[] mass = new int[size];
+            T[] sortMass = GenSortMass<T>(size);
+            T[] mass = new T[size];
             for (int i = 0; i < size; i++)
             {
-                mass[i] = random.Next(rand_min, rand_max);
+                mass[i] = sortMass[size - i - 1];
             }
 
             return mass;
         }
-        public static int[] GenUnsortMass(int size)
+        public static T[] GenSubmassivesMass<T>(int size)
         {
             Random random = new Random(((int)DateTime.Now.Ticks));
-
-            int step_size = size >= big_mass_size
-                ? random.Next(step_size_min, step_size_max / 10)
-                : random.Next(step_size_min, step_size_max);
-
-            int[] mass = new int[size];
-            int rmax = rand_max;
-            for (int i = 0; i < size; i++)
-            {
-                mass[i] = random.Next(Max(rand_min, rmax - step_size), rmax);
-                rmax = mass[i];
-            }
-
-            return mass;
-        }
-        public static int[] GenSubmassivesMass(int size)
-        {
-            Random random = new Random(((int)DateTime.Now.Ticks));
-            int[] mass = new int[size];
+            T[] mass = new T[size];
             int index = 0;
             int rest_size = size;
 
             while (rest_size != 0)
             {
-                int submass_size = rest_size >= big_mass_size
+                int submass_size = rest_size >= 500
                     ? random.Next(1, rest_size / 100)
                     : random.Next(1, rest_size / 10);
                 submass_size *= 10;
-                int[] submass = GenSortMass(submass_size);
+                T[] submass = GenSortMass<T>(submass_size);
                 for (int i = 0; i < submass_size; i++) { mass[index++] = submass[i]; }
 
                 rest_size -= submass_size;
@@ -82,11 +83,12 @@ namespace kasd_labs_winforms
 
             return mass;
         }
-        public static int[] GenSwapMass(int size)
+        public static T[] GenSwapMass<T>(int size)
         {
             Random random = new Random(((int)DateTime.Now.Ticks));
-            int[] mass = GenSortMass(size);
-            int swap_size = random.Next(rand_min, size / 10);
+            T[] mass = GenSortMass<T>(size);
+            int swap_size = random.Next(size / 10);
+
             for (int i = 0; i < swap_size; i++)
             {
                 int ind1 = random.Next(0, size - 1);
@@ -97,30 +99,31 @@ namespace kasd_labs_winforms
 
             return mass;
         }
-        public static int[] GenReplaceMass(int size)
+        public static T[] GenReplaceMass<T>(int size)
         {
             Random random = new Random(((int)DateTime.Now.Ticks));
-            int[] mass = GenSortMass(size);
-            int swap_size = random.Next(rand_min, size);
+            T[] mass = GenSortMass<T>(size);
+            int swap_size = random.Next(size);
             for (int i = 0; i < swap_size; i++)
             {
                 int ind = random.Next(0, size - 1);
-                int value = random.Next(rand_min, rand_max);
+                T value = GetRandomElement<T>();
 
                 mass[ind] = value;
             }
             return mass;
         }
-        public static int[] GenRepeatMass(int size)
+
+        public static T[] GenRepeatMass<T>(int size)
         {
             Random random = new Random(((int)DateTime.Now.Ticks));
-            int[] mass = GenRandomMass(size);
+            T[] mass = GenSortMass<T>(size);
 
             int[] mass_rep = { size / 10, size / 4, size / 2, 3 * (size / 4), 9 * (size / 10) };
             int rep_ind = random.Next(0, mass_rep.Length - 1);
 
             int ind = random.Next(0, size - mass_rep[rep_ind] - 1);
-            int elem = mass[ind];
+            var elem = mass[ind];
             for (int i = 0; i < mass_rep[rep_ind]; i++)
             {
                 mass[ind++] = elem;

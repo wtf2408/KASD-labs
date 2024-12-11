@@ -6,182 +6,262 @@ using System.Windows.Forms;
 using ZedGraph;
 using static System.Windows.Forms.VisualStyles.VisualStyleElement;
 using kasd_labs_winforms;
+using System.Collections;
+using System.Collections.Generic;
+using System.Runtime.InteropServices;
 
 namespace kasd_labs_winforms
 {
-    public delegate void Call_Sort(int[] mass);
     public partial class Form1 : Form
     {
+
+        int size;
         private GraphPane panel;
-        int size = 0;
 
-        private string gen_group = null;
-        int[][] gen_mass = null;
-        bool gened = false;
+        private string gen_group;
+        private string alg_group;
+        private string currentType;
+        
 
-        private string alg_group = null;
-        int[][] sort_mass = null;
-        bool executed = false;
+        Solver<int> intSolver;
+        Solver<double> doubleSolver;
+        Solver<char> charSolver;
+
+
 
         public Form1()
         {
             InitializeComponent();
-            comboBox1.SelectedIndexChanged += comboBox1_SelectedIndexChanged;
-            comboBox2.SelectedIndexChanged += comboBox2_SelectedIndexChanged;
+            comboBox1.SelectedIndexChanged += SelectGenerationGroup;
+            comboBox2.SelectedIndexChanged += SelectArraysGroup;
         }
         private void Form1_Load(object sender, EventArgs e)
         {
             panel = zedGraphControl1.GraphPane;
             panel.CurveList.Clear();
+
+
+            intSolver = new Solver<int>();
+            doubleSolver = new Solver<double>();
+            charSolver = new Solver<char>();
         }
-        private void call_sort(Call_Sort fn, string name, Color color)
+
+
+        private void ViewResult<T>(List<(int, double)> sortingTime, string name, Color color)
         {
             PointPairList list = new PointPairList();
-            Stopwatch sw;
-            for (int i = 0; i < sort_mass.Length; i++)
+
+            for (int i = 0; i < sortingTime.Count; i++)
             {
-                double middle = 0;
-                for (int count = 0; count < 20; count++)
-                {
-                    Array.Copy(gen_mass[i], sort_mass[i], gen_mass[i].Length);
-                    sw = new Stopwatch();
-                    sw.Start();
-                    fn(sort_mass[i]);
-                    sw.Stop();
-                    middle += sw.ElapsedMilliseconds;
-                }
-                middle /= 20;
-                list.Add(i, middle);
+                list.Add(sortingTime[i].Item1, sortingTime[i].Item2);
             }
             panel.AddCurve(name, list, color, SymbolType.None);
+            
+            
             zedGraphControl1.AxisChange();
             zedGraphControl1.Invalidate();
         }
-        private void comboBox1_SelectedIndexChanged(object sender, EventArgs e)
+        
+
+        private void SelectGenerationGroup(object sender, EventArgs e)
         {
             gen_group = comboBox1.SelectedItem.ToString();
         }
-        private void comboBox2_SelectedIndexChanged(object sender, EventArgs e)
+        private void SelectArraysGroup(object sender, EventArgs e)
         {
             alg_group = comboBox2.SelectedItem.ToString();
-            switch (alg_group)
-            {
-                case "group 1":
-                    size = 4;
-                    break;
-                case "group 2":
-                    size = 5;
-                    break;
-                case "group 3":
-                    size = 6;
-                    break;
-                default:
-                    break;
-            }
-            gen_mass = new int[size][];
-            sort_mass = new int[size][];
         }
-        private void button1_Click(object sender, EventArgs e)
+        private void SelectType(object sender, EventArgs e)
         {
-            if (size == 0 || gen_group == null) { return; }
-            int s = 10;
-            for (int i = 0; i < size; i++)
-            {
-                switch (gen_group)
-                {
-                    case "sort_mass":
-                        gen_mass[i] = Generation.GenSortMass(s);
-                        break;
-                    case "unsort_mass":
-                        gen_mass[i] = Generation.GenUnsortMass(s);
-                        break;
-                    case "random_mass":
-                        gen_mass[i] = Generation.GenRandomMass(s);
-                        break;
-                    case "submassives_mass":
-                        gen_mass[i] = Generation.GenSubmassivesMass(s);
-                        break;
-                    case "swap_mass":
-                        gen_mass[i] = Generation.GenSwapMass(s);
-                        break;
-                    case "replace_mass":
-                        gen_mass[i] = Generation.GenReplaceMass(s);
-                        break;
-                    case "repeat_mass":
-                        gen_mass[i] = Generation.GenRepeatMass(s);
-                        break;
-                    default:
-                        break;
-                }
-                sort_mass[i] = new int[s];
-                s *= 10;
-            }
-            gened = true;
+            currentType = comboBox3.SelectedItem.ToString();
         }
-        private void button2_Click(object sender, EventArgs e)
+
+        
+        private void SortButtonClickHandler(object sender, EventArgs e)
         {
-            if (!gened || alg_group == null) { return; }
-            Call_Sort d;
-            switch (alg_group)
+
+            if (currentType == "int")
+                IntSort();
+
+            else if (currentType == "double")
+                DoubleSort();
+
+            else if (currentType == "char")
+                CharSort();
+        }
+
+        void IntSort()
+        {
+            Action<int[], Comparer<int>> sorting;
+
+            if (alg_group == "group 1")
             {
-                case "group 1":
-                    d = new Call_Sort(Sorting.SortBubble);
-                    call_sort(d, "bubble", Color.Blue);
-                    d = new Call_Sort(Sorting.SortShaker);
-                    call_sort(d, "shaker", Color.Red);
-                    d = new Call_Sort(Sorting.SortGnome);
-                    call_sort(d, "gnome", Color.Green);
-                    break;
-                case "group 2":
-                    d = new Call_Sort(Sorting.SortBitonic);
-                    call_sort(d, "bitonic", Color.Blue);
-                    d = new Call_Sort(Sorting.SortShell);
-                    call_sort(d, "shell", Color.Red);
-                    d = new Call_Sort(Sorting.SortTree);
-                    call_sort(d, "tree", Color.Green);
-                    break;
-                case "group 3":
-                    d = new Call_Sort(Sorting.SortComb);
-                    call_sort(d, "comb", Color.Green);
-                    d = new Call_Sort(Sorting.SortHeap);
-                    call_sort(d, "heap", Color.Red);
-                    d = new Call_Sort(Sorting.SortQuick);
-                    call_sort(d, "quick", Color.Orange);
-                    d = new Call_Sort(Sorting.SortMerge);
-                    call_sort(d, "merge", Color.Black);
-                    d = new Call_Sort(Sorting.SortCounting);
-                    call_sort(d, "counting", Color.Blue);
-                    d = new Call_Sort(Sorting.SortRadix);
-                    call_sort(d, "radix", Color.Pink);
-                    break;
-                default:
-                    break;
+                size = 4;
+                intSolver.GenerateArrays(size, gen_group);
+
+                sorting = Sorting.SortBubble;
+                ViewResult<int>(intSolver.SortingTimes(sorting), "bubble", Color.Blue);
+
+                sorting = Sorting.SortShaker;
+                ViewResult<int>(intSolver.SortingTimes(sorting), "shaker", Color.Red);
+
+                sorting = Sorting.SortGnome;
+                ViewResult<int>(intSolver.SortingTimes(sorting), "gnome", Color.Green);
             }
-            executed = true;
+            else if (alg_group == "group 2")
+            {
+                size = 5;
+                intSolver.GenerateArrays(size, gen_group);
+
+                sorting = Sorting.SortBitonic;
+                ViewResult<int>(intSolver.SortingTimes(sorting), "bitonic", Color.Blue);
+
+                sorting = Sorting.SortShell;
+                ViewResult<int>(intSolver.SortingTimes(sorting), "shell", Color.Red);
+
+                sorting = Sorting.SortTree;
+                ViewResult<int>(intSolver.SortingTimes(sorting), "tree", Color.Green);
+            }
+            else if (alg_group == "group 3")
+            {
+                size = 6;
+                intSolver.GenerateArrays(size, gen_group);
+
+                sorting = Sorting.SortComb;
+                ViewResult<int>(intSolver.SortingTimes(sorting), "comb", Color.Green);
+
+                sorting = Sorting.SortHeap;
+                ViewResult<int>(intSolver.SortingTimes(sorting), "heap", Color.Red);
+
+                sorting = Sorting.SortQuick;
+                ViewResult<int>(intSolver.SortingTimes(sorting), "quick", Color.Orange);
+
+                sorting = Sorting.SortMerge;
+                ViewResult<int>(intSolver.SortingTimes(sorting), "merge", Color.Black);
+
+                sorting = Sorting.SortCounting;
+                ViewResult<int>(intSolver.SortingTimes(sorting), "counting", Color.Blue);
+
+                sorting = Sorting.SortRadix;
+                ViewResult<int>(intSolver.SortingTimes(sorting), "radix", Color.Pink);
+            }
+        }
+        void DoubleSort()
+        {
+            Action<double[], Comparer<double>> d;
+
+
+            if (alg_group == "group 1")
+            {
+                size = 4;
+                doubleSolver.GenerateArrays(size, gen_group);
+
+                d = Sorting.SortBubble;
+                ViewResult<double>(doubleSolver.SortingTimes(d), "bubble", Color.Blue);
+
+                d = Sorting.SortShaker;
+                ViewResult<double>(doubleSolver.SortingTimes(d), "shaker", Color.Red);
+
+                d = Sorting.SortGnome;
+                ViewResult<double>(doubleSolver.SortingTimes(d), "gnome", Color.Green);
+            }
+            else if (alg_group == "group 2")
+            {
+                size = 5;
+                doubleSolver.GenerateArrays(size, gen_group);
+
+                d = Sorting.SortBitonic;
+                ViewResult<double>(doubleSolver.SortingTimes(d), "bitonic", Color.Blue);
+
+                d = Sorting.SortShell;
+                ViewResult<double>(doubleSolver.SortingTimes(d), "shell", Color.Red);
+
+                d = Sorting.SortTree;
+                ViewResult<double>(doubleSolver.SortingTimes(d), "tree", Color.Green);
+            }
+            else if (alg_group == "group 3")
+            {
+                size = 6;
+                doubleSolver.GenerateArrays(size, gen_group);
+
+                d = Sorting.SortComb;
+                ViewResult<double>(doubleSolver.SortingTimes(d), "comb", Color.Green);
+
+                d = Sorting.SortHeap;
+                ViewResult<double>(doubleSolver.SortingTimes(d), "heap", Color.Red);
+
+                d = Sorting.SortQuick;
+                ViewResult<double>(doubleSolver.SortingTimes(d), "quick", Color.Orange);
+
+                d = Sorting.SortMerge;
+                ViewResult<double>(doubleSolver.SortingTimes(d), "merge", Color.Black);
+
+                d = Sorting.SortCounting;
+                ViewResult<double>(doubleSolver.SortingTimes(d), "counting", Color.Blue);
+
+                d = Sorting.SortRadix;
+                ViewResult<double>(doubleSolver.SortingTimes(d), "radix", Color.Pink);
+            }
+        }
+
+        void CharSort()
+        {
+            Action<char[], Comparer<char>> d;
+
+
+            if (alg_group == "group 1")
+            {
+                size = 4;
+                charSolver.GenerateArrays(size, gen_group);
+
+                d = Sorting.SortBubble;
+                ViewResult<char>(charSolver.SortingTimes(d), "bubble", Color.Blue);
+                d = Sorting.SortShaker;
+                ViewResult<char>(charSolver.SortingTimes(d), "shaker", Color.Red);
+                d = Sorting.SortGnome;
+                ViewResult<char>(charSolver.SortingTimes(d), "gnome", Color.Green);
+            }
+            else if (alg_group == "group 2")
+            {
+                size = 5;
+                charSolver.GenerateArrays(size, gen_group);
+
+                d = Sorting.SortBitonic;
+                ViewResult<char>(charSolver.SortingTimes(d), "bitonic", Color.Blue);
+                d = Sorting.SortShell;
+                ViewResult<char>(charSolver.SortingTimes(d), "shell", Color.Red);
+                d = Sorting.SortTree;
+                ViewResult<char>(charSolver.SortingTimes(d), "tree", Color.Green);
+            }
+            else if (alg_group == "group 3")
+            {
+                size = 6;
+                charSolver.GenerateArrays(size, gen_group);
+
+                d = Sorting.SortComb;
+                ViewResult<char>(charSolver.SortingTimes(d), "comb", Color.Green);
+                d = Sorting.SortHeap;
+                ViewResult<char>(charSolver.SortingTimes(d), "heap", Color.Red);
+                d = Sorting.SortQuick;
+                ViewResult<char>(charSolver.SortingTimes(d), "quick", Color.Orange);
+                d = Sorting.SortMerge;
+                ViewResult<char>(charSolver.SortingTimes(d), "merge", Color.Black);
+                d = Sorting.SortCounting;
+                ViewResult<char>(charSolver.SortingTimes(d), "counting", Color.Blue);
+                d = Sorting.SortRadix;
+                ViewResult<char>(charSolver.SortingTimes(d), "radix", Color.Pink);
+            }
         }
 
         private async void button3_Click(object sender, EventArgs e)
         {
-            if (!executed) { return; }
-            StreamWriter gen_file = new StreamWriter("../gen_file.txt");
-            for (int i = 0; i < gen_mass.Length; i++)
-            {
-                for (int j = 0; j < gen_mass[i].Length; j++)
-                {
-                    await gen_file.WriteAsync($"{gen_mass[i][j]} ");
-                }
-                await gen_file.WriteLineAsync();
-            }
-
-            StreamWriter sort_file = new StreamWriter("../sort_file.txt");
-            for (int i = 0; i < sort_mass.Length; i++)
-            {
-                for (int j = 0; j < sort_mass[i].Length; j++)
-                {
-                    await sort_file.WriteAsync($"{sort_mass[i][j]} ");
-                }
-                await sort_file.WriteLineAsync();
-            }
+            if (currentType == "int")
+                intSolver.SaveResultsToFile();
+            if (currentType == "double")
+                doubleSolver.SaveResultsToFile();
+            if (currentType == "char")
+                charSolver.SaveResultsToFile();
         }
+
     }
 }
