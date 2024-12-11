@@ -16,24 +16,27 @@ namespace kasd_labs_console
         static void Main(string[] args)
         {
             int[] mass = { 7, 3, 9, 2, 0, 18 };
-            MyPriorityQueue<int> q = new MyPriorityQueue<int>(mass);
-            q.Element();
-            for (int i = 0; i < q.Size; i++) { Console.Write(q[i] + " "); }
+            MyPriorityQueue<int> firstQueue = new MyPriorityQueue<int>(mass);
+            Console.WriteLine("First Queue now:");
+            for (int i = 0; i < firstQueue.Size; i++) { Console.Write(firstQueue[i] + " "); }
             Console.WriteLine();
 
-            Console.WriteLine(q.Poll());
-            for (int i = 0; i < q.Size; i++) { Console.Write(q[i] + " "); }
+
+            Console.WriteLine($"Poll operation: {firstQueue.Poll()}");
+            Console.WriteLine("After Poll operation:");
+            for (int i = 0; i < firstQueue.Size; i++) { Console.Write(firstQueue[i] + " "); }
             Console.WriteLine();
 
             int[] mass2 = { 9, 3, 8, 2, 19 };
-            MyPriorityQueue<int> q2 = new MyPriorityQueue<int>(mass2);
-            MyPriorityQueue<int> q3 = new MyPriorityQueue<int>(q2);
-            for (int i = 0; i < q.Size; i++) { Console.Write(q3[i] + " "); }
-            Console.WriteLine();
+            MyPriorityQueue<int> SecondQueue = new MyPriorityQueue<int>(mass2);
+            Console.WriteLine("Second Queue:");
+            for (int i = 0; i < SecondQueue.Size; i++) { Console.Write(firstQueue[i] + " "); }
 
-            Console.WriteLine(q3.Poll());
-            for (int i = 0; i < q.Size; i++) { Console.Write(q3[i] + " "); }
-            Console.WriteLine();
+
+            MyPriorityQueue<int> ThirdQueue = new MyPriorityQueue<int>(SecondQueue);
+            Console.WriteLine("\nThird Queue (copy second queue):");
+            for (int i = 0; i < ThirdQueue.Size; i++) { Console.Write(firstQueue[i] + " "); }
+
 
             Console.ReadLine();
 
