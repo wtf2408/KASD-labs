@@ -15,28 +15,27 @@ namespace kasd_labs_console
     {
         static void Main(string[] args)
         {
-            int[] arr = {5, 9, 12, 3, 0};
-            MyHeap<int> heap = new MyHeap<int>(arr);
+            int[] mass = { 7, 3, 9, 2, 0, 18 };
+            MyPriorityQueue<int> q = new MyPriorityQueue<int>(mass);
+            q.Element();
+            for (int i = 0; i < q.Size; i++) { Console.Write(q[i] + " "); }
+            Console.WriteLine();
 
-            var max = heap.Max();
-            Console.WriteLine($"Max : {max}");
+            Console.WriteLine(q.Poll());
+            for (int i = 0; i < q.Size; i++) { Console.Write(q[i] + " "); }
+            Console.WriteLine();
 
-            Console.WriteLine("\nHeap:");
-            heap.Print();
+            int[] mass2 = { 9, 3, 8, 2, 19 };
+            MyPriorityQueue<int> q2 = new MyPriorityQueue<int>(mass2);
+            MyPriorityQueue<int> q3 = new MyPriorityQueue<int>(q2);
+            for (int i = 0; i < q.Size; i++) { Console.Write(q3[i] + " "); }
+            Console.WriteLine();
 
+            Console.WriteLine(q3.Poll());
+            for (int i = 0; i < q.Size; i++) { Console.Write(q3[i] + " "); }
+            Console.WriteLine();
 
-
-            heap.PopMax();
-            Console.WriteLine("\nHeap after poping:");
-            heap.Print();
-
-            var otherArr = new int[] { 6, 9, 1};
-            var otherHeap = new MyHeap<int>(otherArr);
-
-            heap.Merge(otherHeap);
-
-            Console.WriteLine("\nHeap after merge");
-            heap.Print();
+            Console.ReadLine();
 
         }
         
