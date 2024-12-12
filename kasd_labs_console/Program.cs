@@ -13,48 +13,71 @@ using kasd_labs_console;
 
 namespace kasd_labs_console
 {
-    internal class Program
+
+
+    class Program
     {
-        static async Task Main(string[] args)
+        static void Main()
         {
             var dir = new DirectoryInfo(AppDomain.CurrentDomain.BaseDirectory).Parent.Parent.FullName;
-            string inputFile = Path.Combine(dir, "input.txt");
+            string inputFilePath = Path.Combine(dir, "input.txt");
+            string outputFilePath = Path.Combine(dir, "results.txt");
 
-            string tagPattern = @"</?[a-zA-Z][a-zA-Z0-9]*>";
+            string pattern = @"(?<type>[a-zA-Z_][a-zA-Z0-9_]*)\s+(?<name>[a-zA-Z_][a-zA-Z0-9_]*)\s*=\s*(?<value>\d+)\s*;";
+            MyHashMap<string, Variable> variabelsMap = new MyHashMap<string, Variable>();
+            var errors = new List<string>();
 
-            MyHashMap<string, int> myHashMap = new MyHashMap<string, int>();
 
-            string[] lines = File.ReadAllLines(inputFile);
+            string variablesFile = File.ReadAllText(inputFilePath);
+            variablesFile = variablesFile.Replace("\r", "").Replace("\n", " ");
 
-            Console.WriteLine("Извлечённые теги:");
-            foreach (var line in lines)
+            MatchCollection matches = Regex.Matches(variablesFile, pattern);
+
+            if (matches.Count > 0) 
             {
-                string trimmedLine = line.Replace(" ", "").Replace("/", "").ToLower();
-                var matches = Regex.Matches(trimmedLine, tagPattern);
-
                 foreach (Match match in matches)
                 {
-                    string tag = match.Value;
-                    Console.WriteLine(tag);
-                    if (myHashMap.ContainsKey(tag))
+                    string typeStr = match.Groups["type"].Value;
+                    string name = match.Groups["name"].Value;
+                    string value = match.Groups["value"].Value;
+                        
+
+                    if (!Enum.TryParse(typeStr, true, out Type type))
                     {
-                        myHashMap.Put(tag, myHashMap.Get(tag)+1);
+                        errors.Add($"Некорректный тип: {typeStr} для переменной {name}.");
+                        continue;
                     }
-                    else
+                    if (variabelsMap.ContainsKey(name))
                     {
-                        myHashMap.Put(tag, 1);
+                        errors.Add($"Переопределение переменной: {name}. Значение {value} игнорируется. " +
+                                    $"Оставляем первую определённую переменную");
+                        continue;
+                    }
+
+                    variabelsMap.Put(name, new Variable(type, value));
+                }
+
+                using (StreamWriter writer = new StreamWriter(outputFilePath))
+                {
+                    foreach (var entry in variabelsMap.EntrySet())
+                    {
+                        writer.WriteLine($"{entry.Value.Type} => {entry.Key}({entry.Value.Value})");
+                    }
+
+                    writer.WriteLine("\nОшибки:");
+                    foreach (string error in errors)
+                    {
+                        writer.WriteLine(error);
                     }
                 }
+
+                Console.WriteLine($"Результаты сохранены в {outputFilePath}");
+            }
+            else
+            {
+                Console.WriteLine("Определения переменных не найдены.");
             }
 
-            
-            var hashedSet = myHashMap.EntrySet();
-            
-            foreach (var pair in hashedSet)
-            {
-                Console.WriteLine($"Тег: {pair.Key} Найден {pair.Value} раз.");
-            }
-            
         }
     }
 }
