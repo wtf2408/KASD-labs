@@ -43,12 +43,9 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="MyHeap.cs" />
-    <Compile Include="MyPriorityQueue.cs" />
+    <Compile Include="MyArrayDeque.cs" />
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
-    <Compile Include="Request.cs" />
-    <Compile Include="RequestInfo.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="App.config" />
