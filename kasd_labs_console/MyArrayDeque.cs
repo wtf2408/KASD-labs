@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Xml.Linq;
 
 namespace kasd_labs_console
 {
@@ -96,7 +97,7 @@ namespace kasd_labs_console
             return true;
         }
 
-        public bool IsEmpty() => tail == -1 && head == 0;
+        public bool IsEmpty() => Size() == 0;
 
         public void Remove(object obj)
         {
