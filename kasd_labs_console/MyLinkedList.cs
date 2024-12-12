@@ -246,6 +246,7 @@ namespace kasd_labs_console
         }
         public void Add(int index, T obj)
         {
+            if (index >= Size()) {Add(obj); return; }
             if (index == 0)
             {
                 Node<T> step = new Node<T>(obj);
@@ -411,7 +412,6 @@ namespace kasd_labs_console
                 Console.Write($"{step.Value} ");
                 step = step.Next;
             }
-            cw
         }
     }
 }

@@ -28,52 +28,62 @@
         /// </summary>
         private void InitializeComponent()
         {
+            this.components = new System.ComponentModel.Container();
+            this.zedGraphControl1 = new ZedGraph.ZedGraphControl();
+            this.comboBox1 = new System.Windows.Forms.ComboBox();
             this.label1 = new System.Windows.Forms.Label();
-            this.vectorLabel = new System.Windows.Forms.Label();
-            this.labelMatrix = new System.Windows.Forms.Label();
             this.SuspendLayout();
+            // 
+            // zedGraphControl1
+            // 
+            this.zedGraphControl1.Location = new System.Drawing.Point(182, 0);
+            this.zedGraphControl1.Margin = new System.Windows.Forms.Padding(4, 4, 4, 4);
+            this.zedGraphControl1.Name = "zedGraphControl1";
+            this.zedGraphControl1.ScrollGrace = 0D;
+            this.zedGraphControl1.ScrollMaxX = 0D;
+            this.zedGraphControl1.ScrollMaxY = 0D;
+            this.zedGraphControl1.ScrollMaxY2 = 0D;
+            this.zedGraphControl1.ScrollMinX = 0D;
+            this.zedGraphControl1.ScrollMinY = 0D;
+            this.zedGraphControl1.ScrollMinY2 = 0D;
+            this.zedGraphControl1.Size = new System.Drawing.Size(617, 450);
+            this.zedGraphControl1.TabIndex = 0;
+            this.zedGraphControl1.UseExtendedPrintDialog = true;
+            // 
+            // comboBox1
+            // 
+            this.comboBox1.FormattingEnabled = true;
+            this.comboBox1.Items.AddRange(new object[] {
+            "Add(value)",
+            "Get(value)",
+            "Set(index, obj)",
+            "Add(index, obj)",
+            "Remove(value)"});
+            this.comboBox1.Location = new System.Drawing.Point(12, 80);
+            this.comboBox1.Name = "comboBox1";
+            this.comboBox1.Size = new System.Drawing.Size(121, 24);
+            this.comboBox1.TabIndex = 1;
+            this.comboBox1.SelectedIndexChanged += new System.EventHandler(this.comboBox1_SelectedIndexChanged);
             // 
             // label1
             // 
             this.label1.AutoSize = true;
-            this.label1.Font = new System.Drawing.Font("Microsoft Sans Serif", 16.2F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(204)));
-            this.label1.Location = new System.Drawing.Point(271, 259);
+            this.label1.Location = new System.Drawing.Point(9, 47);
             this.label1.Name = "label1";
-            this.label1.Size = new System.Drawing.Size(92, 32);
-            this.label1.TabIndex = 0;
-            this.label1.Text = "label1";
-            // 
-            // vectorLabel
-            // 
-            this.vectorLabel.AutoSize = true;
-            this.vectorLabel.Font = new System.Drawing.Font("Microsoft Sans Serif", 16.2F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(204)));
-            this.vectorLabel.Location = new System.Drawing.Point(115, 72);
-            this.vectorLabel.Name = "vectorLabel";
-            this.vectorLabel.Size = new System.Drawing.Size(92, 32);
-            this.vectorLabel.TabIndex = 1;
-            this.vectorLabel.Text = "label2";
-            // 
-            // labelMatrix
-            // 
-            this.labelMatrix.AutoSize = true;
-            this.labelMatrix.Font = new System.Drawing.Font("Microsoft Sans Serif", 16.2F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(204)));
-            this.labelMatrix.Location = new System.Drawing.Point(540, 72);
-            this.labelMatrix.Name = "labelMatrix";
-            this.labelMatrix.Size = new System.Drawing.Size(92, 32);
-            this.labelMatrix.TabIndex = 2;
-            this.labelMatrix.Text = "label2";
+            this.label1.Size = new System.Drawing.Size(141, 16);
+            this.label1.TabIndex = 2;
+            this.label1.Text = "Выбирите операцию";
             // 
             // Form1
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(8F, 16F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.ClientSize = new System.Drawing.Size(800, 450);
-            this.Controls.Add(this.labelMatrix);
-            this.Controls.Add(this.vectorLabel);
             this.Controls.Add(this.label1);
+            this.Controls.Add(this.comboBox1);
+            this.Controls.Add(this.zedGraphControl1);
             this.Name = "Form1";
             this.Text = "Form1";
-            this.Load += new System.EventHandler(this.Form1_Load);
             this.ResumeLayout(false);
             this.PerformLayout();
 
@@ -81,9 +91,9 @@
 
         #endregion
 
+        private ZedGraph.ZedGraphControl zedGraphControl1;
+        private System.Windows.Forms.ComboBox comboBox1;
         private System.Windows.Forms.Label label1;
-        private System.Windows.Forms.Label vectorLabel;
-        private System.Windows.Forms.Label labelMatrix;
     }
 }
 
