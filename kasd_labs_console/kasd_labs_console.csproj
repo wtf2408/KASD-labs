@@ -43,8 +43,8 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="MyLinkedList.cs" />
-    <Compile Include="Node.cs" />
+    <Compile Include="Entry.cs" />
+    <Compile Include="MyHashMap.cs" />
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>

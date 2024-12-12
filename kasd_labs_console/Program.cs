@@ -17,24 +17,24 @@ namespace kasd_labs_console
     {
         static async Task Main(string[] args)
         {
-            var list = new MyLinkedList<int>();
+            var hashMap = new MyHashMap<string, int>();
 
-            list.Add(1);
-            list.Add(2);
-            list.Add(3);
-            list.Add(2, 4);
-            list.Print();
+            hashMap.Put("item", 1);
+            hashMap.Put("biba", 2);
+            hashMap.Put("boba", 3);
 
-            int[] array = { 4, 5, 6, 7, 8, 9, 10 };
-            list.AddAll(2, array);
+            //hashMap.ContainsValue(3);
+            //hashMap.ContainsKey("imem 3");
+            //var a = hashMap.Get("item 3");
+            //Console.WriteLine(a);
 
-            list.AddLast(11);
-            list.AddLast(12);
-            list.Print();
-            Console.WriteLine(list.RemoveLastOccurrence(11));
-            list.Print();
+            var col = hashMap.EntrySet();
+            foreach (var item in col)
+            {
+                Console.WriteLine($"{item.Key} {item.Value}");
+            }
         }
-        
+
     }
 }
         
