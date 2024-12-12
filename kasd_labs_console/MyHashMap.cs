@@ -147,16 +147,18 @@ namespace kasd_labs_console
             Entry<TK, TV> currentEntry = _table[ToHash(key)];
             if (currentEntry != null)
             {
-                while (currentEntry.Next != null)
+                do
                 {
                     if (currentEntry.Key.Equals(key))
                     {
                         currentEntry.Value = value;
                         return;
                     }
-
                     currentEntry = currentEntry.Next;
+
                 }
+                while (currentEntry.Next != null);
+                
 
                 currentEntry.Next = new Entry<TK, TV>(key, value);
             }

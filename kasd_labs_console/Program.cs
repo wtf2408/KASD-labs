@@ -17,24 +17,45 @@ namespace kasd_labs_console
     {
         static async Task Main(string[] args)
         {
-            var hashMap = new MyHashMap<string, int>();
+            var dir = new DirectoryInfo(AppDomain.CurrentDomain.BaseDirectory).Parent.Parent.FullName;
+            string inputFile = Path.Combine(dir, "input.txt");
 
-            hashMap.Put("item", 1);
-            hashMap.Put("biba", 2);
-            hashMap.Put("boba", 3);
+            string tagPattern = @"</?[a-zA-Z][a-zA-Z0-9]*>";
 
-            //hashMap.ContainsValue(3);
-            //hashMap.ContainsKey("imem 3");
-            //var a = hashMap.Get("item 3");
-            //Console.WriteLine(a);
+            MyHashMap<string, int> myHashMap = new MyHashMap<string, int>();
 
-            var col = hashMap.EntrySet();
-            foreach (var item in col)
+            string[] lines = File.ReadAllLines(inputFile);
+
+            Console.WriteLine("Извлечённые теги:");
+            foreach (var line in lines)
             {
-                Console.WriteLine($"{item.Key} {item.Value}");
-            }
-        }
+                string trimmedLine = line.Replace(" ", "").Replace("/", "").ToLower();
+                var matches = Regex.Matches(trimmedLine, tagPattern);
 
+                foreach (Match match in matches)
+                {
+                    string tag = match.Value;
+                    Console.WriteLine(tag);
+                    if (myHashMap.ContainsKey(tag))
+                    {
+                        myHashMap.Put(tag, myHashMap.Get(tag)+1);
+                    }
+                    else
+                    {
+                        myHashMap.Put(tag, 1);
+                    }
+                }
+            }
+
+            
+            var hashedSet = myHashMap.EntrySet();
+            
+            foreach (var pair in hashedSet)
+            {
+                Console.WriteLine($"Тег: {pair.Key} Найден {pair.Value} раз.");
+            }
+            
+        }
     }
 }
         
