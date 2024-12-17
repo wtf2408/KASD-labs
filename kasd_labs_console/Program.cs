@@ -18,20 +18,18 @@ namespace kasd_labs_console
         static void Main()
         {
             MyTreeMap<int, string> treeMap = new MyTreeMap<int, string>();
+            
             foreach (var item in Enumerable.Range(1, 10))
             {
                 treeMap.Put(item*2, $"Value {item*2}");
             }
+
             foreach (var item in Enumerable.Range(1, 10))
             {
                 treeMap.Put(item, $"Value {item}");
             }
-
-
-
-            treeMap.Print();
             
-
+            
         }
 
         

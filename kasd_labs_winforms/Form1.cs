@@ -1,4 +1,6 @@
-﻿using System;
+﻿using kasd_labs_console;
+using System;
+using System.Diagnostics;
 using System.Drawing;
 using System.IO;
 using System.Windows.Forms;
@@ -10,82 +12,138 @@ namespace kasd_labs_winforms
 {
     public partial class Form1 : Form
     {
-        int operationIndex = 0;
-        String[] names = { "Add (value)", "Get (value)", "Set (index, value)", "Add (index, value)", "Remove (index)" };
-        string name;
-        Color color1;
-        Color color2;
-        Testing test;
+        const int count1 = 10_000;
+        const int count2 = 30_000;
+        const int count3 = 50_000;
+        const int count4 = 100_000;
+
+
+        GraphPane pane;
+        PointPairList listHM = new PointPairList();
+        PointPairList listTM = new PointPairList();
+        double[][] times;
+
         public Form1()
         {
             InitializeComponent();
-            test = new Testing();
-            color1 = Color.PowderBlue;
-            color2 = Color.PaleGreen;
         }
 
-        private void DrawGraph(int operationIndex)
+
+        private void button1_Click(object sender, EventArgs e)
         {
-            GraphPane graphPane = zedGraphControl1.GraphPane;
-            graphPane.CurveList.Clear();
-            graphPane.Title.Text = name;
-            graphPane.XAxis.Title.Text = "Ось X";
-            graphPane.YAxis.Title.Text = "Ось Y";
-
-            double[] X = { 100, 1000, 10000, 100000 };
-            double[] Y1 = new double[4];
-            double[] Y2 = new double[4];
-
-            switch (operationIndex)
+            try
             {
-                case 0:
+                switch (comboBox1.SelectedIndex)
                 {
-                    Y1 = test.TestAddArray();
-                    Y2 = test.TestAddLinked();
-                    
-                    break;
+                    case 0:
+                        switch (comboBox2.SelectedIndex)
+                        {
+                            case 0:
+                                times = Testing.GetTimes
+                                (Testing.GetTest,count1);
+                                break;
+                            case 1:
+                                times = Testing.GetTimes
+                                (Testing.GetTest,count2);
+                                break;
+                            case 2:
+                                times = Testing.GetTimes
+                                (Testing.GetTest,count3);
+                                break;
+                            case 3:
+                                times = Testing.GetTimes(Testing.GetTest,count4);
+                                break;
+                        }
+                        break;
+                    case 1:
+                        switch (comboBox2.SelectedIndex)
+                        {
+                            case 0:
+                                times = Testing.GetTimes
+                                (Testing.PutTest,
+                                count1);
+                                break;
+                            case 1:
+                                times = Testing.GetTimes
+                                (Testing.PutTest,
+                                count2);
+                                break;
+                            case 2:
+                                times = Testing.GetTimes
+                                (Testing.PutTest,
+                                count3);
+                                break;
+                            case 3:
+                                times = Testing.GetTimes
+                                (Testing.PutTest,
+                                count4);
+                                break;
+                        }
+                        break;
+                    case 2:
+                        switch (comboBox2.SelectedIndex)
+                        {
+                            case 0:
+                                times = Testing.GetTimes
+                                (Testing.RemoveTest,
+                                count1);
+                                break;
+                            case 1:
+                                times = Testing.GetTimes
+                                (Testing.RemoveTest,
+                                count2);
+                                break;
+                            case 2:
+                                times = Testing.GetTimes
+                                (Testing.RemoveTest,
+                                count3);
+                                break;
+                            case 3:
+                                times = Testing.GetTimes
+                                (Testing.RemoveTest,
+                                count4);
+                                break;
+                        }
+                        break;
                 }
-                case 1:
+                if (0 <= comboBox1.SelectedIndex &&
+                comboBox1.SelectedIndex <= 2 &&
+                    0 <= comboBox2.SelectedIndex &&
+                    comboBox2.SelectedIndex <= 3)
                 {
-                    Y1 = test.TestGetArray();
-                    Y2 = test.TestGetLinked();
+                    zedGraphControl1.AxisChange();
+                    zedGraphControl1.Invalidate();
 
-                    break;
+                    zedGraphControl1.Show();
+                    pane = zedGraphControl1.GraphPane;
+                    pane.Legend.FontSpec.Size = 16;
+                    pane.YAxis.Title.Text = "Время (мс)";
+
+                    pane.CurveList.Clear();
+                    listHM.Clear();
+                    listTM.Clear();
+
+                    averages = Testing.GetMatrixAverage(times);
+                    for (int i = 0; i < 20; i++)
+                        listHM.Add(i + 1, times[i][0]);
+                    LineItem curveHM = pane.AddCurve("MyHashMap", listHM,
+                        Color.Red, SymbolType.None);
+                    for (int i = 0; i < 20; i++)
+                        listTM.Add(i + 1, times[i][1]);
+                    LineItem curveTM = pane.AddCurve("MyTreeMap", listTM,
+                        Color.Blue, SymbolType.None);
+
+                    pane.XAxis.Scale.Min = 1;
+                    pane.XAxis.Scale.Max = 20;
+
+                    zedGraphControl1.AxisChange();
+                    zedGraphControl1.Invalidate();
                 }
-                case 2:
-                {
-                    Y1 = test.TestSetArray();
-                    Y2 = test.TestSetLinked();
-
-                    break;
-                }
-                case 3:
-                {
-                    Y1 = test.TestAddValueArray();
-                    Y2 = test.TestAddValueLinked();
-
-                    break;
-                }
-                case 4:
-                {
-                    Y1 = test.TestRemoveArray();
-                    Y2 = test.TestRemoveLinked();
-
-                    break;
-                }
-
             }
-            graphPane.AddCurve("MyArrayList", X, Y1, color1);
-            graphPane.AddCurve("MyLinkedList", X, Y2, color2);
-            zedGraphControl1.AxisChange();
-            zedGraphControl1.Invalidate();
-        }
-
-        private void comboBox1_SelectedIndexChanged(object sender, EventArgs e)
-        {
-            operationIndex = comboBox1.SelectedIndex;
-            name = comboBox1.SelectedText;
-            DrawGraph(operationIndex);
+            catch (Exception ex)
+            {
+                MessageBox.Show(ex.Message);
+            }
         }
     }
 }

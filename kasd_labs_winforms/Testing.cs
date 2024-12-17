@@ -1,295 +1,141 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using kasd_labs_console;
+using System;
 using System.Diagnostics;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using kasd_labs_console;
 
 namespace kasd_labs_winforms
 {
-    internal class Testing
+    static class Testing
     {
 
-        MyArrayList<int> arrayList;
-        MyLinkedList<int> linkedList;
-        int minSize = 100;
-        int maxSize = 100000 + 1;
-
-        public Testing()
+        public static void HashMapGet(MyHashMap<char, int> hashMap, int amount)
         {
-            arrayList = new MyArrayList<int>();
-            linkedList = new MyLinkedList<int>();
+            Random random = new Random();
+            for (int i = 0; i < amount; i++)
+                hashMap.Get((char)random.Next(1000));
         }
-
-        public double[] TestAddArray()
+        public static void TreeMapGet(MyTreeMap<char, int> treeMap, int amount)
         {
-            double[] time = new double[4];
-            Stopwatch sw = new Stopwatch();
-            int index = 0;
-
-            for (int n = minSize; n < maxSize; n *= 10)
+            Random random = new Random();
+            for (int i = 0; i < amount; i++)
+                treeMap.Get((char)random.Next(1000));
+        }
+        public static void HashMapPut(MyHashMap<char, int> hashMap, int amount)
+        {
+            Random random = new Random();
+            for (int i = 0; i < amount; i++)
+                hashMap.Put((char)random.Next(1000), random.Next(1000));
+        }
+        public static void TreeMapPut(MyTreeMap<char, int> treeMap, int amount)
+        {
+            Random random = new Random();
+            for (int i = 0; i < amount; i++)
+                treeMap.Put((char)random.Next(1000), random.Next(1000));
+        }
+        public static void HashMapRemove(MyHashMap<char, int> hashMap)
+        {
+            Random random = new Random();
+            for (int i = 0; i < 1000; i++)
+                hashMap.Remove((char)i);
+        }
+        public static void TreeMapRemove(MyTreeMap<char, int> treeMap)
+        {
+            Random random = new Random();
+            for (int i = 0; i < 1000; i++)
+                treeMap.Remove((char)i);
+        }
+        public static double[] PutTest(int amount)
+        {
+            double[] time = new double[2];
+            Stopwatch stopwatch = new Stopwatch();
+            MyHashMap<char, int> hashMap = new MyHashMap<char, int>();
+            MyTreeMap<char, int> treeMap = new MyTreeMap<char, int>();
+            char key;
+            int value;
+            Random random = new Random();
+            for (int i = 0; i < amount; i++)
             {
-                for (int i = 0; i != 20; i++)
-                {
-                    sw.Start();
-                    for (int j = 0; j != n; j++)
-                    {
-                        arrayList.Add(1);
-                    }
-                    sw.Stop();
-                    if (i != 19)
-                        linkedList.Clear();
-                    time[index] = sw.ElapsedMilliseconds;
-                }
-                time[index] /= 20;
-                index++;
+                key = (char)random.Next(1000);
+                value = random.Next(1000);
+                hashMap.Put(key, value);
+                treeMap.Put(key, value);
             }
+            stopwatch.Start();
+            HashMapPut(hashMap, amount);
+            stopwatch.Stop();
+            time[0] = stopwatch.ElapsedMilliseconds;
+            stopwatch.Reset();
+            stopwatch.Start();
+            TreeMapPut(treeMap, amount);
+            stopwatch.Stop();
+            time[1] = stopwatch.ElapsedMilliseconds;
             return time;
         }
-        //public double[] TestAddValueArray()
-        //{
-        //    double[] time = new double[4];
-        //    Stopwatch sw = new Stopwatch();
-        //    int index = 0;
-        //    arrayList.Clear();
-
-        //    for (int n = minSize; n < maxSize; n *= 10)
-        //    {
-        //        for (int a = 0; a != 20; a++)
-        //        {
-        //            sw.Start();
-        //            for (int i = 0; i != n; i++)
-        //            {
-        //                arrayList.Add(i, 3);
-        //            }
-        //            sw.Stop();
-        //            if (a != 19)
-        //                linkedList.Clear();
-        //            time[index] = sw.ElapsedMilliseconds;
-        //        }
-        //        time[index] /= 20;
-        //        index++;
-        //    }
-        //    return time;
-        //}
-        public double[] TestAddLinked()
+        public static double[] GetTest(int amount)
         {
-            double[] time = new double[4];
-            Stopwatch sw = new Stopwatch();
-            int index = 0;
-
-            for (int n = minSize; n < maxSize; n *= 10)
+            double[] time = new double[2];
+            Stopwatch stopwatch = new Stopwatch();
+            MyHashMap<char, int> hashMap = new MyHashMap<char, int>();
+            MyTreeMap<char, int> treeMap = new MyTreeMap<char, int>();
+            char key;
+            int value;
+            Random random = new Random();
+            for (int i = 0; i < amount; i++)
             {
-                for (int a = 0; a != 20; a++)
-                {
-                    sw.Start();
-                    for (int i = 0; i != n; i++)
-                    {
-                        linkedList.Add(1);
-                    }
-                    sw.Stop();
-                    if (a != 19)
-                        linkedList.Clear();
-                    time[index] = sw.ElapsedMilliseconds;
-                }
-                time[index] /= 20;
-                index++;
+                key = (char)random.Next(1000);
+                value = random.Next(1000);
+                hashMap.Put(key, value);
+                treeMap.Put(key, value);
             }
+            stopwatch.Start();
+            HashMapGet(hashMap, amount);
+            stopwatch.Stop();
+            time[0] = stopwatch.ElapsedMilliseconds;
+            stopwatch.Reset();
+            stopwatch.Start();
+            TreeMapGet(treeMap, amount);
+            stopwatch.Stop();
+            time[1] = stopwatch.ElapsedMilliseconds;
             return time;
         }
-
-        public double[] TestGetArray()
+        public static double[] RemoveTest(int amount)
         {
-            double[] time = new double[4];
-            Stopwatch sw = new Stopwatch();
-            int index = 0;
-
-            for (int n = minSize; n < maxSize; n *= 10)
+            double[] time = new double[2];
+            Stopwatch stopwatch = new Stopwatch();
+            MyHashMap<char, int> hashMap = new MyHashMap<char, int>();
+            MyTreeMap<char, int> treeMap = new MyTreeMap<char, int>();
+            char key;
+            int value;
+            Random random = new Random();
+            for (int i = 0; i < amount; i++)
             {
-                for (int a = 0; a != 20; a++)
-                {
-                    sw.Start();
-                    for (int i = 0; i != n; i++)
-                    {
-                        var c = arrayList[i];
-                    }
-                    sw.Stop();
-                    time[index] = sw.ElapsedMilliseconds;
-                }
-                time[index] /= 20;
-                index++;
+                key = (char)random.Next(1000);
+                value = random.Next(1000);
+                hashMap.Put(key, value);
+                treeMap.Put(key, value);
             }
-            return time;
-        }
-        public double[] TestGetLinked()
-        {
-            double[] time = new double[4];
-            Stopwatch sw = new Stopwatch();
-            int index = 0;
-
-            for (int n = minSize; n < maxSize; n *= 10)
-            {
-                for (int a = 0; a != 20; a++)
-                {
-                    sw.Start();
-                    for (int i = 0; i != n; i++)
-                    {
-                        linkedList.Get(i);
-                    }
-                    sw.Stop();
-                    time[index] = sw.ElapsedMilliseconds;
-                }
-                time[index] /= 20;
-                index++;
-            }
-            return time;
-        }
-        public double[] TestSetArray()
-        {
-            double[] time = new double[4];
-            Stopwatch sw = new Stopwatch();
-            int index = 0;
-
-            for (int n = minSize; n < maxSize; n *= 10)
-            {
-                for (int a = 0; a != 20; a++)
-                {
-                    sw.Start();
-                    for (int i = 0; i != n; i++)
-                    {
-                        arrayList[i] = 2;
-                    }
-                    sw.Stop();
-                    time[index] = sw.ElapsedMilliseconds;
-                }
-                time[index] /= 20;
-                index++;
-            }
-            return time;
-        }
-        public double[] TestSetLinked()
-        {
-            double[] time = new double[4];
-            Stopwatch sw = new Stopwatch();
-            int index = 0;
-
-            for (int n = minSize; n < maxSize; n *= 10)
-            {
-                for (int a = 0; a != 20; a++)
-                {
-                    sw.Start();
-                    for (int i = 0; i != n; i++)
-                    {
-                        linkedList.Set(i, 2);
-                    }
-                    sw.Stop();
-                    time[index] = sw.ElapsedMilliseconds;
-                }
-                time[index] /= 20;
-                index++;
-            }
-            return time;
-        }
-        public double[] TestAddValueArray()
-        {
-            double[] time = new double[4];
-            Stopwatch sw = new Stopwatch();
-            int index = 0;
-            arrayList.Clear();
-
-            for (int n = minSize; n < maxSize; n *= 10)
-            {
-                for (int a = 0; a != 20; a++)
-                {
-                    sw.Start();
-                    for (int i = 0; i != n; i++)
-                    {
-                        arrayList.Add(3);
-                    }
-                    sw.Stop();
-                    if (a != 19)
-                        linkedList.Clear();
-                    time[index] = sw.ElapsedMilliseconds;
-                }
-                time[index] /= 20;
-                index++;
-            }
-            return time;
-        }
-        public double[] TestAddValueLinked()
-        {
-            double[] time = new double[4];
-            Stopwatch sw = new Stopwatch();
-            int index = 0;
-            linkedList.Clear();
-
-            for (int n = minSize; n < maxSize; n *= 10)
-            {
-                for (int a = 0; a != 20; a++)
-                {
-                    sw.Start();
-                    for (int i = 0; i != n; i++)
-                    {
-                        linkedList.Add(i, 3);
-                    }
-                    sw.Stop();
-                    if (a != 19)
-                        linkedList.Clear();
-                    time[index] = sw.ElapsedMilliseconds;
-                }
-                time[index] /= 20;
-                index++;
-            }
+            stopwatch.Start();
+            HashMapRemove(hashMap);
+            stopwatch.Stop();
+            time[0] = stopwatch.ElapsedMilliseconds;
+            stopwatch.Reset();
+            stopwatch.Start();
+            TreeMapRemove(treeMap);
+            stopwatch.Stop();
+            time[1] = stopwatch.ElapsedMilliseconds;
             return time;
         }
 
-        public double[] TestRemoveArray()
+        public static double[][] GetTimes(Func<int, double[]> func, int amount)
         {
-            double[] time = new double[4];
-            Stopwatch sw = new Stopwatch();
-            int index = 0;
-
-            for (int n = minSize; n < maxSize; n *= 10)
+            double[][] times = new double[20][];
+            for (int i = 0; i < 20; i++)
+                times[i] = new double[2];
+            for (int i = 0; i < 20; i++)
             {
-                for (int a = 0; a != 20; a++)
-                {
-                    sw.Start();
-                    for (int i = 0; i != n; i++)
-                    {
-                        arrayList.Remove(i);
-                    }
-                    sw.Stop();
-                    time[index] = sw.ElapsedMilliseconds;
-                }
-                time[index] /= 20;
-                index++;
+                times[i][0] = func(amount)[0];
+                times[i][1] = func(amount)[1];
             }
-            return time;
-        }
-        public double[] TestRemoveLinked()
-        {
-            double[] time = new double[4];
-            Stopwatch sw = new Stopwatch();
-            int index = 0;
-
-            for (int n = minSize; n < maxSize; n *= 10)
-            {
-                for (int a = 0; a != 20; a++)
-                {
-
-                    sw.Start();
-                    for (int i = 0; i != n; i++)
-                    {
-                        linkedList.Remove(i);
-                    }
-                    sw.Stop();
-                    time[index] = sw.ElapsedMilliseconds;
-                }
-                time[index] /= 20;
-                index++;
-            }
-            return time;
+            return times;
         }
     }
 }
