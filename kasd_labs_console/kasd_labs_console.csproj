@@ -45,6 +45,7 @@
   <ItemGroup>
     <Compile Include="Entry.cs" />
     <Compile Include="MyHashMap.cs" />
+    <Compile Include="MyHashSet.cs" />
     <Compile Include="MyTreeMap.cs" />
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />

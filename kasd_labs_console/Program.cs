@@ -17,20 +17,18 @@ namespace kasd_labs_console
     {
         static void Main()
         {
-            MyTreeMap<int, string> treeMap = new MyTreeMap<int, string>();
-            foreach (var item in Enumerable.Range(1, 10))
-            {
-                treeMap.Put(item*2, $"Value {item*2}");
-            }
-            foreach (var item in Enumerable.Range(1, 10))
-            {
-                treeMap.Put(item, $"Value {item}");
-            }
+            MyHashSet<int> set = new MyHashSet<int>();
+
+            set.AddAll(Enumerable.Range(1, 10).ToArray());
+            set.Remove(3);
+            set.Add(5);
+            set.Add(5);
 
 
+            int[] newArray = set.ToArray();
+            for (int i = 0; i < newArray.Length; i++)
+                Console.Write(newArray[i] + " ");
 
-            treeMap.Print();
-            
 
         }
 
