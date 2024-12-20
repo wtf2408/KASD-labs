@@ -8,12 +8,41 @@ namespace kasd_labs_console
 {
     public class MyTreeSet<T>
     {
+        public class MyItr : MyIterator<T>
+        {
+            public MyItr(MyTreeSet<T> map)
+            {
+                this.set = map.ToArray().ToList();
+            }
+            private List<T> set;
+            private int index = -1;
+            T cursor;
+            public bool HasNext()
+            {
+                return index < set.Count - 1;
+            }
+
+            public T Next()
+            {
+                cursor = set[++index];
+                return cursor;
+            }
+
+            public void Remove()
+            {
+                set.Remove(cursor);
+            }
+        }
         private MyTreeMap<T, object> m;
         private readonly object notUsed;
         public MyTreeSet() : this(Comparer<T>.Default) {}
         public MyTreeSet(MyTreeMap<T, object> m)
         {
             this.m = m;
+        }
+        public MyItr Iterator()
+        {
+            return new MyItr(this); 
         }
         public MyTreeSet(SortedSet<T> m) : this(Comparer<T>.Default) 
         {

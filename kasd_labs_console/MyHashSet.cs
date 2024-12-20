@@ -4,11 +4,39 @@ using System;
 using System.Drawing;
 using System.Linq;
 using System.Linq.Expressions;
+using System.Collections;
+using System.CodeDom;
+using System.Net;
 
 namespace kasd_labs_console
 {
     public class MyHashSet<T> 
     {
+        public class MyItr : MyIterator<T>
+        {
+            public MyItr(MyHashSet<T> map)
+            {
+                this.set = map.ToArray().ToList();
+            }
+            private List<T> set;
+            private int index = -1;
+            T cursor;
+            public bool HasNext()
+            {
+                return index < set.Count - 1; 
+            }
+
+            public T Next()
+            {
+                cursor = set[++index];
+                return cursor;
+            }
+
+            public void Remove()
+            {
+                set.Remove(cursor);
+            }
+        }
         private const int DEFAULT_CAPACITY = 16;
         private const float DEFAULT_LOAD_FACTOR = 0.75f;
         private readonly object fictiveObject = new object();
@@ -35,6 +63,10 @@ namespace kasd_labs_console
             map = new MyHashMap<T, object>(initialCapacity);
         }
 
+        public MyItr Iterator()
+        {
+            return new MyItr(this);
+        }
         public void Add(T element)
         {
             if (!map.ContainsKey(element))

@@ -44,10 +44,16 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Entry.cs" />
+    <Compile Include="MyArrayDeque.cs" />
+    <Compile Include="MyArrayList.cs" />
     <Compile Include="MyHashMap.cs" />
     <Compile Include="MyHashSet.cs" />
+    <Compile Include="MyIterator.cs" />
+    <Compile Include="MyLinkedList.cs" />
+    <Compile Include="MyPrioriryQueue.cs" />
     <Compile Include="MyTreeMap.cs" />
     <Compile Include="MyTreeSet.cs" />
+    <Compile Include="MyVector.cs" />
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
