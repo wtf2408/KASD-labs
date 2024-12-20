@@ -17,7 +17,7 @@ namespace kasd_labs_console
     {
         static void Main()
         {
-            MyHashSet<int> set = new MyHashSet<int>();
+            MyTreeSet<int> set = new MyTreeSet<int>();
 
             set.AddAll(Enumerable.Range(1, 10).ToArray());
             set.Remove(3);
@@ -25,11 +25,10 @@ namespace kasd_labs_console
             set.Add(5);
 
 
-            int[] newArray = set.ToArray();
-            for (int i = 0; i < newArray.Length; i++)
-                Console.Write(newArray[i] + " ");
-
-
+            foreach (var item in set.DescendingIterator())
+            {
+                Console.Write(item + " ");
+            }
         }
 
         

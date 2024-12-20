@@ -11,6 +11,13 @@ namespace kasd_labs_console
         private IComparer<TKey> comparator;
         private Node root;
         private int size;
+        public int Size { get; set; }
+
+        private enum Color
+        {
+            Red,
+            Black
+        }
 
         private class Node
         {
@@ -18,11 +25,13 @@ namespace kasd_labs_console
             public TValue Value { get; set; }
             public Node Left { get; set; }
             public Node Right { get; set; }
+            public Color Color { get; set; }
 
-            public Node(TKey key, TValue value, Node left = null, Node right = null)
+            public Node(TKey key, TValue value, Color color = Color.Red, Node left = null, Node right = null)
             {
                 this.Key = key;
                 this.Value = value;
+                this.Color = color;
                 this.Left = left;
                 this.Right = right;
             }
@@ -37,50 +46,46 @@ namespace kasd_labs_console
         public MyTreeMap(IComparer<TKey> comparer)
         {
             this.comparator = comparer;
+            this.root = null;
         }
 
+        // Print method remains the same
         public void Print()
         {
             var dictionary = new Dictionary<int, List<Node>>();
-            dictionary.Add(0, new List<Node> { root });  
+            dictionary.Add(0, new List<Node> { root });
             FillDictionary(root, dictionary, 1);
 
-            //int spacesCount = dictionary.Count;
             foreach (var item in dictionary.OrderBy(d => d.Key))
             {
-                //for (int i = 0; i < 2 * spacesCount; i++)
-                //{
-                //    Console.Write(" ");
-                //}
                 foreach (var item1 in item.Value)
                 {
                     Console.Write($"{item1.Key}  ");
                 }
                 Console.WriteLine();
-                //spacesCount--;
             }
-
         }
+
         private void FillDictionary(Node node, Dictionary<int, List<Node>> dictionary, int num)
         {
             List<Node> list = new List<Node>();
-            
+
             if (node.Left != null)
             {
                 list.Add(node.Left);
-                FillDictionary(node.Left, dictionary, num+1);
+                FillDictionary(node.Left, dictionary, num + 1);
             }
             if (node.Right != null)
             {
                 list.Add(node.Right);
-                FillDictionary(node.Right, dictionary, num+1);
+                FillDictionary(node.Right, dictionary, num + 1);
             }
             if (list.Count > 0)
             {
                 dictionary.Add(num, list);
             }
-
         }
+
         public void Clear()
         {
             root = null;
@@ -90,18 +95,68 @@ namespace kasd_labs_console
         public void Put(TKey key, TValue value)
         {
             root = PutNode(root, key, value);
+            root.Color = Color.Black;  // корень всегда черный
             size++;
         }
 
+
         private Node PutNode(Node node, TKey key, TValue value)
         {
-            if (node == null) return new Node(key, value);
+            if (node == null)
+                return new Node(key, value, Color.Red); 
 
-            if (comparator.Compare(key, node.Key) < 0) node.Left = PutNode(node.Left, key, value);
-            if (comparator.Compare(key, node.Key) > 0) node.Right = PutNode(node.Right, key, value);
-            else node.Value = value;
+            int cmp = comparator.Compare(key, node.Key);
+
+            if (cmp < 0)
+                node.Left = PutNode(node.Left, key, value);
+            else if (cmp > 0)
+                node.Right = PutNode(node.Right, key, value);
+            else
+                node.Value = value;
+
+            if (IsRed(node.Right) && !IsRed(node.Left))
+                node = RotateLeft(node);
+
+            if (IsRed(node.Left) && IsRed(node.Left.Left))
+                node = RotateRight(node);
+
+            if (IsRed(node.Left) && IsRed(node.Right))
+                FlipColors(node);
 
             return node;
+        }
+
+        private Node RotateLeft(Node node)
+        {
+            Node x = node.Right;
+            node.Right = x.Left;
+            x.Left = node;
+            x.Color = node.Color;
+            node.Color = Color.Red;
+            return x;
+        }
+
+        private Node RotateRight(Node node)
+        {
+            Node x = node.Left;
+            node.Left = x.Right;
+            x.Right = node;
+            x.Color = node.Color;
+            node.Color = Color.Red;
+            return x;
+        }
+
+        private void FlipColors(Node node)
+        {
+            node.Color = Color.Red;
+            node.Left.Color = Color.Black;
+            node.Right.Color = Color.Black;
+        }
+
+        private bool IsRed(Node node)
+        {
+            if (node == null) return false;
+            return node.Color == Color.Red;
         }
 
         public TValue Get(TKey key)
@@ -114,10 +169,10 @@ namespace kasd_labs_console
         {
             if (node == null) return null;
 
-            
-            if (comparator.Compare(key, node.Key) < 0) return GetNode(node.Left, key);
-            if (comparator.Compare(key, node.Key) > 0) return GetNode(node.Right, key);
-            else return node;
+            int cmp = comparator.Compare(key, node.Key);
+            if (cmp < 0) return GetNode(node.Left, key);
+            if (cmp > 0) return GetNode(node.Right, key);
+            return node;
         }
 
         public bool ContainsKey(object key)
@@ -130,10 +185,97 @@ namespace kasd_labs_console
         {
             if (node == null) return false;
 
+            int cmp = comparator.Compare(key, node.Key);
+            if (cmp < 0) return ContainsKey(node.Left, key);
+            if (cmp > 0) return ContainsKey(node.Right, key);
+            return true;
+        }
 
-            if (comparator.Compare(key, node.Key) < 0) return ContainsKey(node.Left, key);
-            if (comparator.Compare(key, node.Key) > 0) return ContainsKey(node.Right, key);
-            else return true;
+        public bool Remove(object key)
+        {
+            if (key is TKey tKey)
+            {
+                int initialSize = size;
+                root = RemoveNode(root, tKey);
+                if (root != null) root.Color = Color.Black;  // Ensure the root is black
+                return size < initialSize;
+            }
+            else throw new ArgumentException("Invalid type of key");
+        }
+
+        private Node RemoveNode(Node node, TKey key)
+        {
+            if (node == null) return null;
+
+            if (comparator.Compare(key, node.Key) < 0)
+            {
+                if (!IsRed(node.Left) && !IsRed(node.Left.Left))
+                    node = MoveRedLeft(node);
+
+                node.Left = RemoveNode(node.Left, key);
+            }
+            else
+            {
+                if (IsRed(node.Left))
+                    node = RotateRight(node);
+
+                if (comparator.Compare(key, node.Key) == 0 && node.Right == null)
+                    return null;
+
+                if (!IsRed(node.Right) && !IsRed(node.Right.Left))
+                    node = MoveRedRight(node);
+
+                if (comparator.Compare(key, node.Key) == 0)
+                {
+                    Node min = FindMin(node.Right);
+                    node.Key = min.Key;
+                    node.Value = min.Value;
+                    node.Right = RemoveMin(node.Right);
+                }
+                else
+                    node.Right = RemoveNode(node.Right, key);
+            }
+            return FixUp(node);
+        }
+
+        private Node RemoveMin(Node node)
+        {
+            if (node.Left == null) return null;
+            if (!IsRed(node.Left) && !IsRed(node.Left.Left))
+                node = MoveRedLeft(node);
+            node.Left = RemoveMin(node.Left);
+            return FixUp(node);
+        }
+
+        private Node MoveRedLeft(Node node)
+        {
+            FlipColors(node);
+            if (IsRed(node.Right.Left))
+            {
+                node.Right = RotateRight(node.Right);
+                node = RotateLeft(node);
+                FlipColors(node);
+            }
+            return node;
+        }
+
+        private Node MoveRedRight(Node node)
+        {
+            FlipColors(node);
+            if (IsRed(node.Left.Left))
+            {
+                node = RotateRight(node);
+                FlipColors(node);
+            }
+            return node;
+        }
+
+        private Node FixUp(Node node)
+        {
+            if (IsRed(node.Right)) node = RotateLeft(node);
+            if (IsRed(node.Left) && IsRed(node.Left.Left)) node = RotateRight(node);
+            if (IsRed(node.Left) && IsRed(node.Right)) FlipColors(node);
+            return node;
         }
 
         public bool ContainsValue(object value)
@@ -190,56 +332,9 @@ namespace kasd_labs_console
             CollectEntries(node.Right, ref entries);
         }
 
-        public bool Remove(object key)
-        {
-            if (key is TKey tKey)
-            {
-                int initialSize = size;
-                root = RemoveNode(root, tKey);
-                return size < initialSize;
-            }
-            else throw new ArgumentException("Invalid type of key");
-            
-        }
-
-        private Node RemoveNode(Node node, TKey key)
-        {
-            if (node == null) return null;
-
-            if (comparator.Compare(key, node.Key) < 0) node.Left = RemoveNode(node.Left, key);
-            if (comparator.Compare(key, node.Key) > 0) node.Right = RemoveNode(node.Right, key);
-            
-            else
-            {
-
-                size--;
-                if (node.Left == null && node.Right == null)
-                    return null;
-
-                if (node.Left == null)
-                    return node.Right;
-                if (node.Right == null)
-                    return node.Left;
-
-                // Находим минимальный(самый левый) узел в правом поддереве (наследник)
-                Node successor;
-                while (node.Right.Left != null)
-                    node.Right = node.Right.Left;
-                successor = node.Right;
-
-                node.Key = successor.Key;
-                node.Value = successor.Value;
-
-                node.Right = RemoveNode(node.Right, successor.Key);
-            }
-
-            return node;
-        }
-
         private Node FindMin(Node node)
         {
-            while (node.Left != null)
-                node = node.Left;
+            while (node.Left != null) node = node.Left;
             return node;
         }
 
@@ -326,14 +421,14 @@ namespace kasd_labs_console
                 AddToSubMap(node.Right, start, end, subMap);
         }
 
-        public List<KeyValuePair<TKey, TValue>> TailMap(TKey start)
+        public MyTreeMap<TKey, TValue> TailMap(TKey start)
         {
-            List<KeyValuePair<TKey, TValue>> tailMapList = new List<KeyValuePair<TKey, TValue>>();
+            MyTreeMap<TKey, TValue> tailMapList = new MyTreeMap<TKey, TValue>();
             AddToTailMap(root, start, tailMapList);
             return tailMapList;
         }
 
-        private void AddToTailMap(Node node, TKey start, List<KeyValuePair<TKey, TValue>> tailMapList)
+        private void AddToTailMap(Node node, TKey start, MyTreeMap<TKey, TValue> tailMapList)
         {
             if (node == null) return;
 
@@ -342,7 +437,7 @@ namespace kasd_labs_console
             // Если ключ больше start, добавляем его в tailMapList
             if (cmp > 0)
             {
-                tailMapList.Add(new KeyValuePair<TKey, TValue>(node.Key, node.Value));
+                tailMapList.Put(node.Key, node.Value);
                 AddToTailMap(node.Left, start, tailMapList);
                 AddToTailMap(node.Right, start, tailMapList);
             }
